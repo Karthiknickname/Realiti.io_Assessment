@@ -2,6 +2,7 @@
 
 import { useDraggable } from "@dnd-kit/core";
 import { CSS } from "@dnd-kit/utilities";
+import { AnimatePresence, motion } from "motion/react";
 import {
   Pencil,
   Trash2,
@@ -49,11 +50,15 @@ export default function TaskCard({ task, onEdit, onDelete }) {
     : null;
 
   return (
-    <article
-      ref={setNodeRef}
-      style={style}
-      className="group rounded-xl border border-gray-200 bg-white p-4 shadow-sm transition hover:shadow-md"
-    >
+      <article
+        ref={setNodeRef}
+        style={style}
+        {...attributes}
+        {...listeners}
+        className={`group cursor-grab rounded-xl border border-gray-200 bg-white p-4 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-violet-200 hover:shadow-lg active:cursor-grabbing ${
+        isDragging ? "cursor-grabbing" : ""
+        }`}
+      >
       <div className="flex items-start justify-between gap-3">
         <div className="flex min-w-0 items-start gap-2">
           {/* Drag Handle */}
@@ -78,6 +83,7 @@ export default function TaskCard({ task, onEdit, onDelete }) {
         <div className="flex shrink-0 items-center gap-1 opacity-100 transition sm:opacity-0 sm:group-hover:opacity-100">
           <button
             type="button"
+            onPointerDown={(event) => event.stopPropagation()}
             onClick={() => onEdit(task)}
             aria-label={`Edit ${task.title}`}
             className="rounded-md p-1.5 text-gray-400 transition hover:bg-violet-50 hover:text-violet-600"
@@ -87,6 +93,7 @@ export default function TaskCard({ task, onEdit, onDelete }) {
 
           <button
             type="button"
+            onPointerDown={(event) => event.stopPropagation()}
             onClick={() => onDelete(task.id)}
             aria-label={`Delete ${task.title}`}
             className="rounded-md p-1.5 text-gray-400 transition hover:bg-red-50 hover:text-red-600"

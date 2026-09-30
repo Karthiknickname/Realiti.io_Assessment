@@ -11,6 +11,7 @@ import TaskModal from "@/app/component/tasks/TaskModal";
 export default function Home() {
   const [tasks, setTasks] = useState([]);
   const [isLoaded, setIsLoaded] = useState(false);
+  const [activeTab, setActiveTab] = useState("board");
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingTask, setEditingTask] = useState(null);

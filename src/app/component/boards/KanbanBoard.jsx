@@ -1,9 +1,49 @@
+
 "use client";
 
-import { DndContext, closestCorners } from "@dnd-kit/core";
+import {
+  DndContext,
+  closestCorners,
+  PointerSensor,
+  useSensor,
+  useSensors,
+} from "@dnd-kit/core";
 
 import { TASK_COLUMNS } from "@/lib/constants";
 import KanbanColumn from "./KanbanColumn";
+
+// Restrict dragged card within the Kanban board
+const restrictToBoard = ({
+  transform,
+  draggingNodeRect,
+}) => {
+  // Prevent document access during server-side rendering
+  if (typeof document === "undefined" || !draggingNodeRect) {
+    return transform;
+  }
+
+  const board = document.getElementById("board");
+
+  if (!board) {
+    return transform;
+  }
+
+  const boardRect = board.getBoundingClientRect();
+
+  // Calculate horizontal boundaries
+  const minX = boardRect.left - draggingNodeRect.left;
+  const maxX = boardRect.right - draggingNodeRect.right;
+
+  // Calculate vertical boundaries
+  const minY = boardRect.top - draggingNodeRect.top;
+  const maxY = boardRect.bottom - draggingNodeRect.bottom;
+
+  return {
+    ...transform,
+    x: Math.min(Math.max(transform.x, minX), maxX),
+    y: Math.min(Math.max(transform.y, minY), maxY),
+  };
+};
 
 export default function KanbanBoard({
   tasks = [],
@@ -12,10 +52,17 @@ export default function KanbanBoard({
   onDeleteTask,
   onMoveTask,
 }) {
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 8,
+      },
+    })
+  );
+
   const handleDragEnd = (event) => {
     const { active, over } = event;
 
-    // If the task was not dropped over a column
     if (!over) return;
 
     const taskId = active.id;
@@ -25,17 +72,24 @@ export default function KanbanBoard({
       (task) => task.id === taskId
     );
 
-    // Prevent unnecessary updates
     if (!draggedTask || draggedTask.status === newStatus) {
       return;
     }
+
+    const isValidStatus = TASK_COLUMNS.some(
+      (column) => column.id === newStatus
+    );
+
+    if (!isValidStatus) return;
 
     onMoveTask(taskId, newStatus);
   };
 
   return (
     <DndContext
+      sensors={sensors}
       collisionDetection={closestCorners}
+      modifiers={[restrictToBoard]}
       onDragEnd={handleDragEnd}
     >
       <div

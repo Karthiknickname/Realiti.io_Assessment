@@ -6,8 +6,6 @@ import { useState } from "react";
 
 const navItems = [
   { name: "Board", href: "#board" },
-  { name: "My Tasks", href: "#my-tasks" },
-  { name: "About", href: "#about" },
 ];
 
 export default function Header({ onAddTask }) {
@@ -24,7 +22,7 @@ export default function Header({ onAddTask }) {
           </div>
 
           <span className="text-xl font-bold tracking-tight text-gray-900">
-            TaskFlow
+            Assessment
           </span>
         </Link>
 
