@@ -5,7 +5,7 @@ export const TASK_COLUMNS = [
     color: "bg-blue-500",
   },
   {
-    id: "in-progress",
+    id: "inProgress",
     title: "In Progress",
     color: "bg-yellow-500",
   },

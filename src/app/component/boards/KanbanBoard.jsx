@@ -1,9 +1,15 @@
+
 "use client";
 
 import { TASK_COLUMNS } from "@/lib/constants";
 import KanbanColumn from "./KanbanColumn";
 
-export default function KanbanBoard({ tasks = [], onAddTask }) {
+export default function KanbanBoard({
+  tasks = [],
+  onAddTask,
+  onEditTask,
+  onDeleteTask,
+}) {
   return (
     <div
       id="board"
@@ -20,6 +26,8 @@ export default function KanbanBoard({ tasks = [], onAddTask }) {
             column={column}
             tasks={columnTasks}
             onAddTask={onAddTask}
+            onEditTask={onEditTask}
+            onDeleteTask={onDeleteTask}
           />
         );
       })}
