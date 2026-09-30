@@ -1,6 +1,6 @@
-
 "use client";
 
+import { useDroppable } from "@dnd-kit/core";
 import { Plus } from "lucide-react";
 
 import EmptyState from "./EmptyState";
@@ -13,12 +13,22 @@ export default function KanbanColumn({
   onEditTask,
   onDeleteTask,
 }) {
-  return (
-    <section className="min-w-0 rounded-2xl bg-gray-100/70 p-3 sm:p-4">
+  const { setNodeRef, isOver } = useDroppable({
+    id: column.id,
+    data: {
+      status: column.id,
+    },
+  });
 
+  return (
+    <section
+      ref={setNodeRef}
+      className={`min-w-0 rounded-2xl p-3 transition-colors sm:p-4 ${
+        isOver ? "bg-violet-100 ring-2 ring-violet-400" : "bg-gray-100/70"
+      }`}
+    >
       {/* Column Header */}
       <div className="mb-4 flex items-center justify-between">
-
         <div className="flex items-center gap-2">
           <span
             className={`h-2.5 w-2.5 rounded-full ${column.color}`}
@@ -41,12 +51,10 @@ export default function KanbanColumn({
         >
           <Plus size={18} />
         </button>
-
       </div>
 
-      {/* Task List */}
-      <div className="space-y-3">
-
+      {/* Drop Area */}
+      <div className="min-h-40 space-y-3">
         {tasks.length === 0 ? (
           <EmptyState title={column.title} />
         ) : (
@@ -59,7 +67,6 @@ export default function KanbanColumn({
             />
           ))
         )}
-
       </div>
     </section>
   );

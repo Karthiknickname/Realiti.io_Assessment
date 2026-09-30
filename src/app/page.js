@@ -1,7 +1,6 @@
-
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 import Header from "@/app/component/layout/Header";
 import Footer from "@/app/component/layout/Footer";
@@ -11,15 +10,47 @@ import TaskModal from "@/app/component/tasks/TaskModal";
 
 export default function Home() {
   const [tasks, setTasks] = useState([]);
+  const [isLoaded, setIsLoaded] = useState(false);
+
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingTask, setEditingTask] = useState(null);
   const [defaultStatus, setDefaultStatus] = useState("todo");
 
+  // Load tasks from localStorage
+  useEffect(() => {
+    try {
+      const savedTasks = localStorage.getItem("taskflow-tasks");
+
+      if (savedTasks) {
+        // eslint-disable-next-line react-hooks/set-state-in-effect
+        setTasks(JSON.parse(savedTasks));
+      }
+    } catch (error) {
+      console.error("Error loading tasks:", error);
+    } finally {
+      setIsLoaded(true);
+    }
+  }, []);
+
+  // Save tasks to localStorage
+  useEffect(() => {
+    if (!isLoaded) return;
+
+    try {
+      localStorage.setItem(
+        "taskflow-tasks",
+        JSON.stringify(tasks)
+      );
+    } catch (error) {
+      console.error("Error saving tasks:", error);
+    }
+  }, [tasks, isLoaded]);
+
   // Open modal for creating a task
   const handleOpenCreateModal = (status = "todo") => {
-  setEditingTask(null);
-  setDefaultStatus(status);
-  setIsModalOpen(true);
+    setEditingTask(null);
+    setDefaultStatus(status);
+    setIsModalOpen(true);
   };
 
   // Open modal for editing a task
@@ -36,8 +67,6 @@ export default function Home() {
 
   // Create or update task
   const handleSaveTask = (formData) => {
-    console.log("Saved task:", formData);
-    console.log("Selected status:", formData.status);
     if (editingTask) {
       setTasks((previousTasks) =>
         previousTasks.map((task) =>
@@ -69,6 +98,17 @@ export default function Home() {
     );
   };
 
+  // Move task between columns
+  const handleMoveTask = (taskId, newStatus) => {
+    setTasks((previousTasks) =>
+      previousTasks.map((task) =>
+        task.id === taskId
+          ? { ...task, status: newStatus }
+          : task
+      )
+    );
+  };
+
   return (
     <div className="flex min-h-screen flex-col">
       <Header onAddTask={handleOpenCreateModal} />
@@ -81,6 +121,7 @@ export default function Home() {
           onAddTask={handleOpenCreateModal}
           onEditTask={handleOpenEditModal}
           onDeleteTask={handleDeleteTask}
+          onMoveTask={handleMoveTask}
         />
       </main>
 
